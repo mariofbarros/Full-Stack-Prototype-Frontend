@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Coffee Shop Orders</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+
+    <header class="app-header">
+        <h1>☕ Coffee Shop Orders</h1>
+        
+        <form id="create-order-form">
+            <input 
+                type="text" 
+                id="order-content" 
+                placeholder="Enter order details (max 100 chars)" 
+                maxlength="100" 
+                required
+            >
+            <button type="submit">Add Order</button>
+        </form>
+    </header>
+
+    <main id="orders-container" class="orders-grid">
+        <p class="loading-message">Loading orders...</p>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>
