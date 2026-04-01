@@ -133,7 +133,6 @@ function renderOrderCard(order) {
     
     card.innerHTML = `
         <div class="order-header">
-            <span>#${order.id}</span>
             <span>${formattedDate}</span>
         </div>
         <div class="order-content">${escapeHtml(order.content)}</div>
