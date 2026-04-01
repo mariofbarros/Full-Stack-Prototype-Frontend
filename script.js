@@ -1,4 +1,5 @@
 // ==================== CONFIGURATION ====================
+// Ensure this matches the port where your Flask backend is running
 const API_BASE_URL = 'http://localhost:5000';
 
 // ==================== DOM ELEMENTS ====================
@@ -24,7 +25,7 @@ async function loadOrders() {
         
         const data = await response.json();
         
-        // Clear the loading message
+        // Clear previous content (including loading message)
         ordersContainer.innerHTML = '';
         
         if (data.orders.length === 0) {
@@ -39,7 +40,7 @@ async function loadOrders() {
         
     } catch (error) {
         console.error('Failed to load orders:', error);
-        ordersContainer.innerHTML = '<p class="error-message">Failed to load orders. Make sure the backend is running.</p>';
+        ordersContainer.innerHTML = '<p class="error-message">Failed to load orders. Make sure the backend is running and CORS is enabled.</p>';
     }
 }
 
@@ -73,7 +74,7 @@ async function createOrder(content) {
 // 3. Update an existing order
 async function updateOrder(id, content) {
     try {
-        const response = await fetch(`$${API_BASE_URL}/orders/$${id}`, {
+        const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -101,7 +102,7 @@ async function deleteOrder(id) {
     if (!confirmed) return;
     
     try {
-        const response = await fetch(`$${API_BASE_URL}/orders/$${id}`, {
+        const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
             method: 'DELETE'
         });
         
@@ -124,7 +125,7 @@ async function deleteOrder(id) {
 function renderOrderCard(order) {
     const card = document.createElement('article');
     card.className = 'order-card';
-    card.dataset.id = order.id; // Store the ID for later use
+    card.dataset.id = order.id; // Store ID for event delegation
     
     // Format the date nicely
     const date = new Date(order.created);
@@ -137,8 +138,8 @@ function renderOrderCard(order) {
         </div>
         <div class="order-content">${escapeHtml(order.content)}</div>
         <div class="card-actions">
-            <button class="btn-edit" onclick="editOrder($${order.id}, '$${escapeHtml(order.content)}')">Edit</button>
-            <button class="btn-delete" onclick="deleteOrder(${order.id})">Delete</button>
+            <button class="btn-edit" data-id="${order.id}">Edit</button>
+            <button class="btn-delete" data-id="${order.id}">Delete</button>
         </div>
     `;
     
@@ -173,26 +174,41 @@ createOrderForm.addEventListener('submit', async (event) => {
     }
 });
 
-// Handle Edit button click
-window.editOrder = async (id, currentContent) => {
-    const newContent = prompt('Update order:', currentContent);
+// Event Delegation: Handle clicks on Edit and Delete buttons
+ordersContainer.addEventListener('click', async (event) => {
+    const target = event.target;
     
-    if (newContent === null) return; // User cancelled
-    if (!newContent.trim()) {
-        alert('Order content cannot be empty');
-        return;
-    }
-    if (newContent.length > 100) {
-        alert('Order content must be 100 characters or less');
-        return;
+    // Handle Edit button click
+    if (target.classList.contains('btn-edit')) {
+        const card = target.closest('.order-card');
+        const id = parseInt(card.dataset.id);
+        const contentElement = card.querySelector('.order-content');
+        const currentContent = contentElement.textContent;
+        
+        const newContent = prompt('Update order:', currentContent);
+        
+        if (newContent === null) return; // User cancelled
+        if (!newContent.trim()) {
+            alert('Order content cannot be empty');
+            return;
+        }
+        if (newContent.length > 100) {
+            alert('Order content must be 100 characters or less');
+            return;
+        }
+        
+        try {
+            await updateOrder(id, newContent.trim());
+        } catch (error) {
+            console.error('Edit failed:', error);
+        }
     }
     
-    try {
-        await updateOrder(id, newContent.trim());
-    } catch (error) {
-        console.error('Edit failed:', error);
+    // Handle Delete button click
+    if (target.classList.contains('btn-delete')) {
+        const card = target.closest('.order-card');
+        const id = parseInt(card.dataset.id);
+        
+        await deleteOrder(id);
     }
-};
-
-// Handle Delete button click (already defined in deleteOrder function)
-// No additional setup needed here
+});
