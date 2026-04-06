@@ -5,6 +5,10 @@
 
 A lightweight, responsive web interface for managing coffee shop orders. Built with **Vanilla JavaScript**, **HTML5**, and **CSS3**, this frontend connects directly to the [Full Stack Prototype Backend](https://github.com/mariofbarros/Full-Stack-Prototype-Backend).
 
+
+https://github.com/user-attachments/assets/4a8496d6-62c8-4996-8c27-f369667e292e
+
+
 ## Features
 
 - **Real-time Order Management**: View, create, edit, and delete orders instantly.
